@@ -1,16 +1,19 @@
 package model.entities;
 
+import model.enums.ProductColors;
 import model.enums.ProductsSold;
 
 public class Product {
-	
+
 	private ProductsSold name;
+	private ProductColors color;
 	private Double price;
 	private Long id;
-	
-	public Product(ProductsSold name, Double price, Long id) {
+
+	public Product(ProductsSold name, ProductColors color, Double price, Long id) {
 		super();
 		this.name = name;
+		this.color = color;
 		this.price = price;
 		this.id = id;
 	}
@@ -21,6 +24,14 @@ public class Product {
 
 	public void setName(ProductsSold name) {
 		this.name = name;
+	}
+
+	public ProductColors getColor() {
+		return color;
+	}
+
+	public void setColor(ProductColors color) {
+		this.color = color;
 	}
 
 	public Double getPrice() {
@@ -41,6 +52,6 @@ public class Product {
 
 	@Override
 	public String toString() {
-		return "Product [name=" + name + ", price=" + price + ", id=" + id + "]";
+		return "Product [name=" + name + ", color=" + color + ", price=" + price + ", id=" + id + "]";
 	}
 }
