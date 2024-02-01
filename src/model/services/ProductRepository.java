@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import model.entities.Product;
 import model.enums.ProductColors;
@@ -44,7 +46,7 @@ public class ProductRepository {
             throw new IOException("Error reading file: " + e.getMessage());
         }
     }
-
+    
     public void save() throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(path, false))) {
             //Use the for each interface would generate other exception
@@ -60,6 +62,17 @@ public class ProductRepository {
         }
     }
 
+    public Set<Product> checkProducts(ProductsSold name, ProductColors color) throws DomainException {
+        Set<Product> set = products.stream()
+                       .filter(x -> x.getName().equals(name) && x.getColor().equals(color))
+                       .collect(Collectors.toSet());
+        if(set.size() == 0) {
+        	throw new DomainException("Out of stock products!");
+        }
+        
+        return set;
+    }
+    
     public Product findByID(long id) throws DomainException {
         return products.stream()
                        .filter(x -> x.getId() == id)
