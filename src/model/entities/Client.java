@@ -5,10 +5,10 @@ import java.time.LocalDate;
 public class Client {
 	
 	private String name;
-	private Integer cpf;
+	private Long cpf;
 	private LocalDate birthDate;
 	
-	public Client(String name, Integer cpf, LocalDate birthDate) {
+	public Client(String name, long cpf, LocalDate birthDate) {
 		super();
 		this.name = name;
 		this.cpf = cpf;
@@ -23,11 +23,11 @@ public class Client {
 		this.name = name;
 	}
 
-	public Integer getCpf() {
+	public Long getCpf() {
 		return cpf;
 	}
 
-	public void setCpf(Integer cpf) {
+	public void setCpf(Long cpf) {
 		this.cpf = cpf;
 	}
 

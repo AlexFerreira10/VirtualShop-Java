@@ -52,6 +52,10 @@ public class Order {
 		this.client = client;
 	}
 
+	public List<OrderItem> getOrderItem() {
+		return orderItem;
+	}
+
 	public void addItem(OrderItem item) {
 		orderItem.add(item);
 	}
@@ -63,5 +67,10 @@ public class Order {
 	public double total() {
 		return orderItem.stream().mapToDouble(x -> x.subTotal()).sum();
 	}
-	
+
+	@Override
+	public String toString() {
+		return "Order [code=" + code + ", status=" + status + ", purchaseTime=" + purchaseTime + ", client=" + client
+				+ ", orderItem=" + orderItem + "]";
+	}
 }

@@ -33,42 +33,61 @@ public class Program {
 			products.forEach(System.out :: println);
 			
 			System.out.println("Client data: ");
-			System.out.println("Enter your name? ");
+			System.out.print("Enter your name: ");
 			String name = sc.nextLine();
-			System.out.println("Enter your cpf? ");
-			int cpf = sc.nextInt();
-			System.out.println("Enter your birth date? ");
+			System.out.print("Enter your cpf: ");
+			long cpf = sc.nextLong();
+			System.out.print("Enter your birth date (dd/MM/yyyy): ");
+			sc.nextLine();
 			LocalDate birthDate = LocalDate.parse(sc.nextLine(), dtf);
 			Client client = new Client(name, cpf, birthDate);
 			
 			boolean confirmOrder = false;
+			int option = 0;
 			do {
-				System.out.println("Order data: ");
-				System.out.println("What product do you choose? ");
-				System.out.println("- Shorts");
-				System.out.println("- Shirt");
-				System.out.println("- Shoes");
-				System.out.print("Option: ");
-				ProductsSold nameProduct = ProductsSold.valueOf(sc.nextLine().toUpperCase());
-				System.out.println("Enter with the color: ");
-				ProductColors color = ProductColors.valueOf(sc.nextLine().toUpperCase());
-				System.out.println("Enter with the quantify: ");
-				int quantify = sc.nextInt();
-				Instant purchaseTime = Instant.now();
 				
-				Set<Product> checkProducts = repository.checkProducts(nameProduct, color);
-				if(quantify > checkProducts.size()) {
-					System.out.println("We not have this quantify! - Available products: " + checkProducts.size());
-					products.forEach(System.out :: println);
+				UI.mainMenu();
+				option = sc.nextInt();
+				switch(option) {
+				case 1:
+					//Edit client data
+					break;
+				case 2:
+					//print Order
+					break;
+				case 3:
+					UI.orderData();
+					sc.nextLine();
+					ProductsSold nameProduct = ProductsSold.valueOf(sc.nextLine().toUpperCase());
+					System.out.print("Enter with the color: ");
+					ProductColors color = ProductColors.valueOf(sc.nextLine().toUpperCase());
+					System.out.print("Enter with the quantify: ");
+					int quantify = sc.nextInt();
+					Instant purchaseTime = Instant.now();
+					
+					Set<Product> checkProducts = repository.checkProducts(nameProduct, color);
+					if(quantify > checkProducts.size()) {
+						System.out.println("We not have this quantify! - Available products: " + checkProducts.size());
+						products.forEach(System.out :: println);
+					}
+					else {
+						order = new Order(1, OrderStatus.PENDING_PAYMENT, purchaseTime, client);
+						order.addItem(new OrderItem(quantify,checkProducts.stream().findFirst().orElse(null).getPrice(), checkProducts.stream().findFirst().orElse(null)));
+					}
+					
+					order.getOrderItem().forEach(System.out :: println);
+					break;
+				case 4:
+					//Remove order item
+					break;
+				case 5:
+					//Make a pament
+					break;
+				case 6:
+					//print a product
+					break;
 				}
-				else {
-					order = new Order(1, OrderStatus.PENDING_PAYMENT, purchaseTime, client);
-					//Think a instanceof this class
-					//order.addItem(new OrderItem(quantify, checkProducts.stream().findFirst() ));
-				}
-				
-			} while(confirmOrder);
-
+			} while(confirmOrder || option == 7);
 		}
 		catch(IOException e) {
 			System.out.println(e.getMessage());

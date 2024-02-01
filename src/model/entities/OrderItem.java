@@ -25,8 +25,6 @@ public class OrderItem {
 	public Double getPrice() {
 		return price;
 	}
-	
-	
 
 	public Product getProduct() {
 		return product;
@@ -43,4 +41,12 @@ public class OrderItem {
 	public double subTotal() {
 		return quantify * price;
 	}
+
+	@Override
+	public String toString() {
+		return "OrderItem [quantify=" + quantify + ", price=" + price + ", product=" + product + ", subTotal()="
+				+ subTotal() + "]";
+	}
+	
+	
 }
