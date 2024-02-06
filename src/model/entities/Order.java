@@ -68,9 +68,9 @@ public class Order {
 		return orderItem.stream().mapToDouble(x -> x.subTotal()).sum();
 	}
 
-	@Override
-	public String toString() {
-		return "Order [code=" + code + ", status=" + status + ", purchaseTime=" + purchaseTime + ", client=" + client
-				+ ", orderItem=" + orderItem + "]";
+	public void invoice() {
+		System.out.println("Order [code=" + code + ", status=" + status + ", purchaseTime=" + purchaseTime + ", client=" + client + "]");
+		orderItem.forEach(System.out::println);
+		System.out.println("Total value:" + String.format("%.2f", total()));
 	}
 }

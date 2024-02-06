@@ -4,8 +4,12 @@ public class OrderItem {
 	
 	private Integer quantify;
 	private Double price;
-	
 	private Product product;
+
+	public OrderItem(Integer quantify, Product product) {
+		this.quantify -= quantify;
+		this.product = product;
+	}
 
 	public OrderItem(Integer quantify, Double price, Product product) {
 		super();

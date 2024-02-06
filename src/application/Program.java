@@ -30,7 +30,6 @@ public class Program {
 		
 		try {
 			List<Product> products = repository.read();
-			products.forEach(System.out :: println);
 			
 			System.out.println("Client data: ");
 			System.out.print("Enter your name: ");
@@ -40,8 +39,8 @@ public class Program {
 			System.out.print("Enter your birth date (dd/MM/yyyy): ");
 			sc.nextLine();
 			LocalDate birthDate = LocalDate.parse(sc.nextLine(), dtf);
-			Client client = new Client(name, cpf, birthDate);
-			
+			Instant purchaseTime = Instant.now();
+			order = new Order(1, OrderStatus.PENDING_PAYMENT, purchaseTime, new Client(name, cpf, birthDate));
 			boolean confirmOrder = false;
 			int option = 0;
 			do {
@@ -49,13 +48,13 @@ public class Program {
 				UI.mainMenu();
 				option = sc.nextInt();
 				switch(option) {
-				case 1:
-					//Edit client data
+				case 1://Edit client data
+
 					break;
-				case 2:
-					//print Order
+				case 2://print order
+					order.invoice();
 					break;
-				case 3:
+				case 3://add product
 					UI.orderData();
 					sc.nextLine();
 					ProductsSold nameProduct = ProductsSold.valueOf(sc.nextLine().toUpperCase());
@@ -63,7 +62,6 @@ public class Program {
 					ProductColors color = ProductColors.valueOf(sc.nextLine().toUpperCase());
 					System.out.print("Enter with the quantify: ");
 					int quantify = sc.nextInt();
-					Instant purchaseTime = Instant.now();
 					
 					Set<Product> checkProducts = repository.checkProducts(nameProduct, color);
 					if(quantify > checkProducts.size()) {
@@ -71,23 +69,40 @@ public class Program {
 						products.forEach(System.out :: println);
 					}
 					else {
-						order = new Order(1, OrderStatus.PENDING_PAYMENT, purchaseTime, client);
 						order.addItem(new OrderItem(quantify,checkProducts.stream().findFirst().orElse(null).getPrice(), checkProducts.stream().findFirst().orElse(null)));
 					}
-					
-					order.getOrderItem().forEach(System.out :: println);
+					System.out.println(order.getOrderItem());
 					break;
-				case 4:
-					//Remove order item
+				case 4://remove order item
+					order.invoice();
+					UI.orderData();
+					sc.nextLine();
+					nameProduct = ProductsSold.valueOf(sc.nextLine().toUpperCase());
+					System.out.print("Enter with the color: ");
+					color = ProductColors.valueOf(sc.nextLine().toUpperCase());
+					System.out.print("Enter with the quantity that you want to remove: ");
+					int quantityToRemove = sc.nextInt();
+
+					OrderItem orderItem = order.getOrderItem().stream()
+							.filter(x -> x.getProduct().getName().equals(nameProduct) && x.getProduct().getColor().equals(color))
+							.findFirst()
+							.orElseThrow(() -> new DomainException("Error: Order item not found"));
+
+					if (quantityToRemove < orderItem.getQuantify()) {
+						orderItem.setQuantify(orderItem.getQuantify() - quantityToRemove);
+					} else {
+						order.removeItem(orderItem);
+					}
+
 					break;
 				case 5:
-					//Make a pament
+					//Make a payment
 					break;
 				case 6:
-					//print a product
+					option = 7;
 					break;
 				}
-			} while(confirmOrder || option == 7);
+			} while(option != 7);
 		}
 		catch(IOException e) {
 			System.out.println(e.getMessage());

@@ -1,9 +1,7 @@
 package application;
 
 public class UI {
-	
-	 
-	
+
 	public static void mainMenu() {		
 		StringBuilder sb = new StringBuilder();
 		sb.append("-------- Menu -------- \n");

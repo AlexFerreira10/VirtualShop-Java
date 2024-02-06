@@ -22,7 +22,7 @@ public class ProductRepository {
 
     public ProductRepository() {
         super();
-        this.path = "C:\\Projects\\VirtualShop-Java\\VirtualShop\\data\\Products.CSV";
+        this.path = "C:\\Java\\Projects\\VirtualShop-Java\\data\\Products.CSV";
     }
 
     public List<Product> read() throws IOException {
