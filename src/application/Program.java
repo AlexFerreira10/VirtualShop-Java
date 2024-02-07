@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.Set;
+import java.time.format.DateTimeParseException;
+
 
 import model.entities.Client;
 import model.entities.Order;
@@ -27,24 +29,48 @@ public class Program {
 		ProductRepository repository = new ProductRepository();
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		Order order = null;
-		
+
 		try {
 			List<Product> products = repository.read();
-			
+
 			System.out.println("Client data: ");
 			System.out.print("Enter your name: ");
 			String name = sc.nextLine();
-			System.out.print("Enter your cpf: ");
-			long cpf = sc.nextLong();
-			System.out.print("Enter your birth date (dd/MM/yyyy): ");
-			sc.nextLine();
-			LocalDate birthDate = LocalDate.parse(sc.nextLine(), dtf);
+
+			boolean validInput = false;
+			String cpf = null;
+			do {
+				System.out.print("Enter your cpf (only numbers): ");
+				cpf = sc.nextLine();
+
+				if (cpf.length() != 11) {
+					System.out.println("Invalid CPF: CPF must have 11 digits");
+				} else {
+					validInput = true;
+				}
+			} while (!validInput);
+
+			validInput = false;
+			LocalDate birthDate = null;
+
+			do {
+				System.out.print("Enter your birth date (dd/MM/yyyy): ");
+				String birthDateInput = sc.nextLine();
+
+				try {
+					birthDate = LocalDate.parse(birthDateInput, dtf);
+					validInput = true;
+				} catch (DateTimeParseException e) {
+					System.out.println("Invalid date format. Please enter the date in the format dd/MM/yyyy.");
+				}
+			} while (!validInput);
+
 			Instant purchaseTime = Instant.now();
 			order = new Order(1, OrderStatus.PENDING_PAYMENT, purchaseTime, new Client(name, cpf, birthDate));
 			boolean confirmOrder = false;
 			int option = 0;
 			do {
-				
+
 				UI.mainMenu();
 				option = sc.nextInt();
 				switch(option) {
@@ -62,7 +88,7 @@ public class Program {
 					ProductColors color = ProductColors.valueOf(sc.nextLine().toUpperCase());
 					System.out.print("Enter with the quantify: ");
 					int quantify = sc.nextInt();
-					
+
 					Set<Product> checkProducts = repository.checkProducts(nameProduct, color);
 					if(quantify > checkProducts.size()) {
 						System.out.println("We not have this quantify! - Available products: " + checkProducts.size());
@@ -106,7 +132,7 @@ public class Program {
 		}
 		catch(IOException e) {
 			System.out.println(e.getMessage());
-		} 
+		}
 		catch (DomainException e) {
 			System.out.println(e.getMessage());
 		}
@@ -114,5 +140,4 @@ public class Program {
 			sc.close();
 		}
 	}
-
 }
