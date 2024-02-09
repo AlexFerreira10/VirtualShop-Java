@@ -36,60 +36,37 @@ public class Program {
 			System.out.println("Client data: ");
 			System.out.print("Enter your name: ");
 			String name = sc.nextLine();
-
-			boolean validInput = false;
-			String cpf = null;
-			do {
-				System.out.print("Enter your cpf (only numbers): ");
-				cpf = sc.nextLine();
-
-				if (cpf.length() != 11) {
-					System.out.println("Invalid CPF: CPF must have 11 digits");
-				} else {
-					validInput = true;
-				}
-			} while (!validInput);
-
-			validInput = false;
-			LocalDate birthDate = null;
-
-			do {
-				System.out.print("Enter your birth date (dd/MM/yyyy): ");
-				String birthDateInput = sc.nextLine();
-
-				try {
-					birthDate = LocalDate.parse(birthDateInput, dtf);
-					validInput = true;
-				} catch (DateTimeParseException e) {
-					System.out.println("Invalid date format. Please enter the date in the format dd/MM/yyyy.");
-				}
-			} while (!validInput);
+			String cpf = UI.readCPF(sc);
+			LocalDate birthDate = UI.readBirthDate(sc, dtf);
 
 			Instant purchaseTime = Instant.now();
 			order = new Order(1, OrderStatus.PENDING_PAYMENT, purchaseTime, new Client(name, cpf, birthDate));
-			boolean confirmOrder = false;
+			UI.clearScreen();
+
 			int option = 0;
 			do {
-
 				UI.mainMenu();
 				option = sc.nextInt();
+				System.out.println("Enter ok for continue... ");
+				sc.next();
+				UI.clearScreen();
+
 				switch(option) {
 				case 1://Edit client data
-
 					break;
 				case 2://print order
 					order.invoice();
+					System.out.println("Enter ok for continue... ");
+					sc.next();
 					break;
 				case 3://add product
-					UI.orderData();
 					sc.nextLine();
-					ProductsSold nameProduct = ProductsSold.valueOf(sc.nextLine().toUpperCase());
-					System.out.print("Enter with the color: ");
-					ProductColors color = ProductColors.valueOf(sc.nextLine().toUpperCase());
+					ProductsSold productsSold = UI.readProductSold(sc);
+					ProductColors productColors = UI.readProductColors(sc);
 					System.out.print("Enter with the quantify: ");
 					int quantify = sc.nextInt();
 
-					Set<Product> checkProducts = repository.checkProducts(nameProduct, color);
+					Set<Product> checkProducts = repository.checkProducts(productsSold, productColors);
 					if(quantify > checkProducts.size()) {
 						System.out.println("We not have this quantify! - Available products: " + checkProducts.size());
 						products.forEach(System.out :: println);
@@ -101,16 +78,14 @@ public class Program {
 					break;
 				case 4://remove order item
 					order.invoice();
-					UI.orderData();
 					sc.nextLine();
-					nameProduct = ProductsSold.valueOf(sc.nextLine().toUpperCase());
-					System.out.print("Enter with the color: ");
-					color = ProductColors.valueOf(sc.nextLine().toUpperCase());
+					productsSold = UI.readProductSold(sc);
+					productColors = UI.readProductColors(sc);
 					System.out.print("Enter with the quantity that you want to remove: ");
 					int quantityToRemove = sc.nextInt();
 
 					OrderItem orderItem = order.getOrderItem().stream()
-							.filter(x -> x.getProduct().getName().equals(nameProduct) && x.getProduct().getColor().equals(color))
+							.filter(x -> x.getProduct().getName().equals(productsSold) && x.getProduct().getColor().equals(productColors))
 							.findFirst()
 							.orElseThrow(() -> new DomainException("Error: Order item not found"));
 
@@ -119,15 +94,20 @@ public class Program {
 					} else {
 						order.removeItem(orderItem);
 					}
-
 					break;
 				case 5:
 					//Make a payment
 					break;
 				case 6:
+					products.forEach(System.out :: println);
+					System.out.println("Enter ok for continue... ");
+					sc.next();
+					break;
+				case 7:
 					option = 7;
 					break;
 				}
+			UI.clearScreen();
 			} while(option != 7);
 		}
 		catch(IOException e) {
