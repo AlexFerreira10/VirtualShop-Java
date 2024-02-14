@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.enums.OrderStatus;
+import model.services.OnlinePaymentService;
 
 public class Order {
 	
@@ -15,7 +16,10 @@ public class Order {
 	private Client client;
 	
 	private List<OrderItem> orderItem = new ArrayList<>();
-
+	private OnlinePaymentService onlinePaymentService;
+	
+	private Double finalValue;
+	
 	public Order(Integer code, OrderStatus status, Instant purchaseTime, Client client) {
 		super();
 		this.code = code;
@@ -26,10 +30,6 @@ public class Order {
 
 	public Integer getCode() {
 		return code;
-	}
-
-	public void setCode(Integer code) {
-		this.code = code;
 	}
 
 	public Instant getPurchaseTime() {
@@ -44,6 +44,10 @@ public class Order {
 		return status;
 	}
 	
+	public void setStatus(OrderStatus status) {
+		this.status = status;
+	}
+
 	public Client getClient() {
 		return client;
 	}
@@ -56,6 +60,10 @@ public class Order {
 		return orderItem;
 	}
 
+	public void setFinalValue(Double finalValue) {
+		this.finalValue = finalValue;
+	}
+
 	public void addItem(OrderItem item) {
 		orderItem.add(item);
 	}
@@ -64,13 +72,31 @@ public class Order {
 		orderItem.remove(item);
 	}
 	
+	public OnlinePaymentService getOnlinePaymentService() {
+		return onlinePaymentService;
+	}
+
 	public double total() {
 		return orderItem.stream().mapToDouble(x -> x.subTotal()).sum();
 	}
 
 	public void invoice() {
-		System.out.println("Order [code=" + code + ", status=" + status + ", purchaseTime=" + purchaseTime + ", client=" + client + "]");
+		System.out.println("--------- Invoice -----------");
+		System.out.println("Order [code=" + code + ", status=" + status + ", purchaseTime=" + purchaseTime + ", client=" + client
+				+ ", orderItem=" + orderItem + ", onlinePaymentService=" + onlinePaymentService + "]");
 		orderItem.forEach(System.out::println);
-		System.out.println("Total value:" + String.format("%.2f", total()));
+		System.out.println("Total value:" + String.format("%.2f", finalValue));
 	}
+	
+	public void formOfPayment(OnlinePaymentService onlinePaymentService) {
+		this.onlinePaymentService = onlinePaymentService;
+	}
+
+	@Override
+	public String toString() {
+		return "Order [code=" + code + ", status=" + status + ", purchaseTime=" + purchaseTime + ", client=" + client
+				+ ", orderItem=" + orderItem + ", total()=" + total() + "]";
+	}
+	
+	
 }

@@ -47,11 +47,11 @@ public class UI {
 		do {
 			System.out.print("Enter your cpf (only numbers): ");
 			cpf = sc.nextLine();
+			//Regular Expression
+			//Verificate if the cpf have 11 digits
 			validInput = cpf.matches("\\d{11}");
 			if (!validInput) {
 				System.out.println("Invalid CPF: CPF must have 11 digits");
-				System.out.println("Enter ok for continue... ");
-				sc.next();
 			}
 		} while (!validInput);
 		return cpf;
@@ -104,5 +104,10 @@ public class UI {
 		} while (!validInput);
 
 		return productsSold;
+	}
+	
+	public static void defaultConfirmation(Scanner sc) {
+		System.out.println("Enter ok for continue... ");
+		sc.next();
 	}
 }
