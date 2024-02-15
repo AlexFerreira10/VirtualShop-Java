@@ -1,6 +1,9 @@
 package model.entities;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,15 +80,23 @@ public class Order {
 	}
 
 	public double total() {
-		return orderItem.stream().mapToDouble(x -> x.subTotal()).sum();
+		double total = orderItem.stream().mapToDouble(x -> x.subTotal()).sum();
+		this.finalValue = total;
+		return total;
 	}
 
 	public void invoice() {
-		System.out.println("--------- Invoice -----------");
-		System.out.println("Order [code=" + code + ", status=" + status + ", purchaseTime=" + purchaseTime + ", client=" + client
-				+ ", orderItem=" + orderItem + ", onlinePaymentService=" + onlinePaymentService + "]");
-		orderItem.forEach(System.out::println);
-		System.out.println("Total value:" + String.format("%.2f", finalValue));
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+		LocalDateTime purchaseTimeLocal = LocalDateTime.ofInstant(purchaseTime, ZoneId.systemDefault());
+	    StringBuilder sb = new StringBuilder();
+	    
+	    sb.append("--------------------------------------------------- Invoice -------------------------------------------------------------\n");
+	    sb.append("| Code: ").append(code).append(" - Purchase Time: ").append(purchaseTimeLocal.format(dtf)).append("\n");
+	    sb.append("| Client: ").append(client).append("\n");
+	    orderItem.forEach(x -> sb.append("| ").append(x).append("\n"));
+	    sb.append("| Final Value: ").append(String.format("%.2f", finalValue)).append("\n");
+	    sb.append("-----------------------------------------------------------------------------------------------------------------------\n");
+	    System.out.println(sb);
 	}
 	
 	public void formOfPayment(OnlinePaymentService onlinePaymentService) {
@@ -94,9 +105,17 @@ public class Order {
 
 	@Override
 	public String toString() {
-		return "Order [code=" + code + ", status=" + status + ", purchaseTime=" + purchaseTime + ", client=" + client
-				+ ", orderItem=" + orderItem + ", total()=" + total() + "]";
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+		LocalDateTime purchaseTimeLocal = LocalDateTime.ofInstant(purchaseTime, ZoneId.systemDefault());
+		
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("--------------------------------------------------- Order -------------------------------------------------------------\n");
+	    sb.append("| Code: ").append(code).append(" - Status: ").append(status).append(" - Purchase Time: ").append(purchaseTimeLocal.format(dtf)).append("\n");
+	    sb.append("| Client: ").append(client).append("\n");
+	    orderItem.forEach(x -> sb.append("| ").append(x).append("\n"));
+	    sb.append("| Total Value: ").append(String.format("%.2f", total())).append("\n");
+	    sb.append("-----------------------------------------------------------------------------------------------------------------------\n");
+	   
+	    return sb.toString();
 	}
-	
-	
 }

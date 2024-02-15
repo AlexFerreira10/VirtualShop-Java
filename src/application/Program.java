@@ -25,6 +25,7 @@ import model.services.ProductRepository;
 public class Program {
 
 	public static void main(String[] args){
+		UI.clearScreen();
 		Locale.setDefault(Locale.US);
 		Scanner sc = new Scanner(System.in);
 		ProductRepository repository = new ProductRepository();
@@ -45,8 +46,6 @@ public class Program {
 			order = new Order(1, OrderStatus.PENDING_PAYMENT, purchaseTime, new Client(name, cpf, birthDate));
 			shop.addOrders(order);
 			UI.clearScreen();
-			ProductsSold productsSold = null;
-			ProductColors productColors = null;
 
 			int option = 0;
 			do {
@@ -61,97 +60,117 @@ public class Program {
 					System.out.println(order);
 					UI.defaultConfirmation(sc);
 					break;
-				case 3://add product
-					sc.nextLine();
-					productsSold = UI.readProductSold(sc);
-					productColors = UI.readProductColors(sc);
+				case 3:// add product
+					Set<Product> checkProducts = repository.checkProducts(sc);
 					System.out.print("Enter with the quantify: ");
 					int quantify = sc.nextInt();
 
-					Set<Product> checkProducts = repository.checkProducts(productsSold, productColors);
-					if(quantify > checkProducts.size()) {
-						//availabe = disponivel
+					if (quantify > checkProducts.size()) {
+						// availabe = disponivel
 						System.out.println("We not have this quantify! - Available products: " + checkProducts.size());
-					}
-					else {
-						order.addItem(new OrderItem(quantify,checkProducts.stream().findFirst().orElse(null).getPrice(), checkProducts.stream().findFirst().orElse(null)));
+					} else {
+						order.addItem(
+								new OrderItem(quantify, checkProducts.stream().findFirst().orElse(null).getPrice(),
+										checkProducts.stream().findFirst().orElse(null)));
 						System.out.println(order.getOrderItem());
 					}
 					UI.defaultConfirmation(sc);
 					break;
 				case 4: // Remove order item
-				    order.invoice();
-				    sc.nextLine(); 
-				    boolean target = false;
-				    int quantityToRemove;
-				    OrderItem orderItem = null;
+					sc.nextLine();
+					boolean target = true;
+					int quantityToRemove;
+					OrderItem orderItem = null;
 
-				    do {
-				        ProductsSold productsSold2 = UI.readProductSold(sc);
-				        ProductColors productColors2 = UI.readProductColors(sc);
-				        System.out.print("Enter the quantity that you want to remove: ");
-				        quantityToRemove = sc.nextInt();
-				        sc.nextLine(); 
+					do {
+						System.out.println(order);
+						if(!target) {
+							sc.nextLine();
+						}
+						target = false;
+						ProductsSold productsSold = UI.readProductSold(sc);
+						ProductColors productColors = UI.readProductColors(sc);
+						System.out.print("Enter the quantity that you want to remove: ");
+						quantityToRemove = sc.nextInt();
+						sc.nextLine();
 
-				        orderItem = order.getOrderItem().stream()
-				                .filter(x -> x.getProduct().getName().equals(productsSold2) && x.getProduct().getColor().equals(productColors2))
-				                .findFirst()
-				                .orElse(null);
+						orderItem = order.getOrderItem().stream()
+								.filter(x -> x.getProduct().getName().equals(productsSold)
+										&& x.getProduct().getColor().equals(productColors))
+								.findFirst().orElse(null);
 
-				        if (orderItem != null && orderItem.getQuantify() >= quantityToRemove) {
-				            target = true;
-				        } else {
-				            System.out.println("Order Item not found!");
-				            UI.defaultConfirmation(sc);
-				            UI.clearScreen();
-				        }
-				    } while (!target);
+						if (orderItem != null && orderItem.getQuantify() >= quantityToRemove) {
+							target = true;
+						} else {
+							System.out.println("Order Item not found!");
+							UI.defaultConfirmation(sc);
+							UI.clearScreen();
+						}
+					} while (!target);
 
-				    System.out.println("Are you sure you want to remove this item from the order? (yes/no)");
-				    String confirmation = sc.nextLine();
-				    if (confirmation.equalsIgnoreCase("yes")) {
-				        if (quantityToRemove < orderItem.getQuantify()) {
-				            orderItem.setQuantify(orderItem.getQuantify() - quantityToRemove);
-				        } else {
-				            order.removeItem(orderItem);
-				        }
-				        System.out.println("Item removed successfully.");
-				    } else {
-				        System.out.println("Removal cancelled.");
-				    }
-				    UI.defaultConfirmation(sc);
-				    break;
-				case 5://Make a payment
-					Boolean confirmPayment;
+					System.out.println("Are you sure you want to remove this item from the order? (yes/no)");
+					String confirmation = sc.nextLine();
+					if (confirmation.equalsIgnoreCase("yes")) {
+						if (quantityToRemove < orderItem.getQuantify()) {
+							orderItem.setQuantify(orderItem.getQuantify() - quantityToRemove);
+						} else {
+							order.removeItem(orderItem);
+						}
+						System.out.println("Item removed successfully.");
+					} else {
+						System.out.println("Removal cancelled.");
+					}
+					UI.defaultConfirmation(sc);
+					break;
+				case 5:// Make a payment
+					if(order.getStatus() != OrderStatus.PENDING_PAYMENT) {
+						System.out.println("This order has already been paid");
+						UI.clearScreen();
+						order.invoice();
+						break;
+					}
+					String confirmPayment;
 					System.out.println("What paymnet form? ");
 					System.out.println("[1] Pix");
 					System.out.println("[2] Credit card");
 					System.out.print("Option: ");
 					option = sc.nextInt();
-					
+
 					System.out.println(order);
-					UI.defaultConfirmation(sc);
-					
-					if(option == 1) {
-						System.out.println("Confirm(true/false): ");
-						confirmPayment = Boolean.valueOf(sc.next().toUpperCase());
-						
-						if(confirmPayment) {
+
+					if (option == 1) {
+						System.out.println("\nConfirm(yes/no): ");
+						confirmPayment = sc.next().toUpperCase();
+
+						if (confirmPayment.equals("YES")) {
 							order.formOfPayment(new PixPayment());
 							order.getOnlinePaymentService().changeStatusOrder(order);
 							order.getOnlinePaymentService().increaseInvoicing(shop, order);
+							UI.clearScreen();
+							order.invoice();
 						}
-					}
-					else {
+					} else {
 						System.out.print("What installment amount? ");
 						int quantityOfInstallments = sc.nextInt();
 						order.formOfPayment(new CreditCardPayment(quantityOfInstallments));
-						order.getOnlinePaymentService().changeStatusOrder(order);
-						order.getOnlinePaymentService().increaseInvoicing(shop, order);
-						UI.defaultConfirmation(sc);
+						order.getOnlinePaymentService().finalValue(order);
+						
+						System.out.print("\nConfirm(yes/no): ");
+						confirmPayment = sc.next().toUpperCase();
+
+						if (confirmPayment.equals("YES")) {
+							order.getOnlinePaymentService().changeStatusOrder(order);
+							order.getOnlinePaymentService().increaseInvoicing(shop, order);
+							UI.defaultConfirmation(sc);
+							UI.clearScreen();
+							order.invoice();
+						}
+						else {
+							order.formOfPayment(null);
+						}
 					}
-					order.invoice();
 					UI.defaultConfirmation(sc);
+					UI.clearScreen();
 					break;
 				case 6:
 					products.forEach(System.out :: println);
@@ -167,9 +186,9 @@ public class Program {
 		catch(IOException e) {
 			System.out.println(e.getMessage());
 		}
-		catch (DomainException e) {
+		/*catch (DomainException e) {
 			System.out.println(e.getMessage());
-		}
+		}*/
 		finally{
 			sc.close();
 		}

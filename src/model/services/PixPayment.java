@@ -2,11 +2,8 @@ package model.services;
 
 import model.entities.Order;
 import model.entities.Shop;
-import model.enums.OrderStatus;
 
 public class PixPayment implements OnlinePaymentService {
-	
-	private static String code;
 
 	@Override
 	public void increaseInvoicing(Shop shop, Order order) {
@@ -14,4 +11,14 @@ public class PixPayment implements OnlinePaymentService {
 		order.setFinalValue(order.total());
 		//Retirar do Repositorio de produtos
 	}
+	
+	@Override
+	public void finalValue(Order order) {
+		System.out.println("Final Value: " + String.format("%.2f", order.total()));
+	}
+
+	@Override
+	public String toString() {
+		return "PixPayment";
+	}	
 } 

@@ -2,7 +2,6 @@ package application;
 
 import model.enums.ProductColors;
 import model.enums.ProductsSold;
-import model.exceptions.DomainException;
 
 import java.util.Scanner;
 import java.time.LocalDate;
@@ -21,7 +20,7 @@ public class UI {
 		sb.append("[ 6 ] Print every products\n");
 		sb.append("[ 7 ] exit\n");
 		sb.append("Option: ");
-		System.out.println(sb);
+		System.out.print(sb);
 	}
 	
 	private static void orderData() {
@@ -32,7 +31,7 @@ public class UI {
 		sb.append("- Shirt \n");
 		sb.append("- Shoes \n");
 		sb.append("Option: ");
-		System.out.println(sb);
+		System.out.print(sb);
 	}
 
 	// https://stackoverflow.com/questions/2979383/java-clear-the-console
@@ -107,7 +106,7 @@ public class UI {
 	}
 	
 	public static void defaultConfirmation(Scanner sc) {
-		System.out.println("Enter ok for continue... ");
+		System.out.println("\nEnter ok for continue... ");
 		sc.next();
 	}
 }

@@ -15,14 +15,23 @@ public class CreditCardPayment implements OnlinePaymentService {
 
 	@Override
 	public void increaseInvoicing(Shop shop, Order order) {
-		System.out.println("Total Value: " + String.format("%.2f", calculatorInterest(order)) 
-		+ " - Installment Value: " + String.format("%.2f", calculatorInterest(order) / quantityOfInstallments));
-		
 		shop.setInvoicing(shop.getInvoicing() + calculatorInterest(order));
 		order.setFinalValue(calculatorInterest(order));
+	}
+	
+	public void finalValue(Order order) {
+		System.out.println("Final Value: " + String.format("%.2f", calculatorInterest(order)) 
+		+ " - Installment Value: " + String.format("%.2f", calculatorInterest(order) / quantityOfInstallments));
 	}
 	
 	private double calculatorInterest(Order order) {
 		return order.total() * Math.pow(1 + interest, quantityOfInstallments); 
 	}
+
+	@Override
+	public String toString() {
+		return "CreditCardPayment [quantityOfInstallments=" + quantityOfInstallments + "]";
+	}
+	
+	
 }

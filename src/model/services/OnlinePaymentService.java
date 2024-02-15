@@ -11,4 +11,6 @@ public interface OnlinePaymentService {
 	};
 	
 	public void increaseInvoicing(Shop shop, Order order); 
+	
+	public void finalValue(Order order);
 }
